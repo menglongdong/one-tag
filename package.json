@@ -15,9 +15,10 @@
     "onCommand:one-tag.findSymbols",
     "onCommand:one-tag.gotoSymbol",
     "onCommand:one-tag.findRefer",
-    "onCommand:one-tag.showFileSymbols"
+    "onCommand:one-tag.showFileSymbols",
+    "onCommand:one-tag.updateSymbols"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/main.js",
   "contributes": {
     "commands": [
       {
@@ -35,6 +36,10 @@
       {
         "command": "one-tag.showFileSymbols",
         "title": "ONE-TAG: Find Function References of current file"
+      },
+      {
+        "command": "one-tag.updateSymbols",
+        "title": "ONE-TAG: Update all tags(gtag and ctag)"
       }
     ],
     "configuration": {
@@ -44,7 +49,7 @@
         "one-tag.autoUpdate": {
           "type": "boolean",
           "default": false,
-          "description": "Whether Gtags should update automatically or not when saving file. (default: false)"
+          "description": "Whether One-Tag should update automatically or not when saving file. (default: false)"
         }
       }
     }

@@ -1,15 +1,15 @@
 
-import { window, Range, workspace, Position, Uri, TextDocument, TextEditor } from "vscode";
+import { window, Range, workspace, Position, Uri, TextDocument } from "vscode";
 
+import { absPath } from './config';
 import { Tag } from './tag';
-import { abs_path } from './config';
 
 const tag = new Tag();
 
 
 function getPattern(keywords: string) {
     if (keywords.startsWith('-')) { return keywords.substr(1) + '.*'; }
-    return '^' + keywords;
+    return keywords;
 }
 
 var gotoItems = (item: any) => {
@@ -19,8 +19,7 @@ var gotoItems = (item: any) => {
             Position(item["line"], 0)),
         preview: false,
     };
-    window.showTextDocument(Uri.file(abs_path +
-        item["path"]), options);
+    window.showTextDocument(Uri.file(absPath + item["path"]), options);
 };
 
 function getWord() {
@@ -42,7 +41,7 @@ export var updateTags = (doc: TextDocument) => {
 
 export function findRefer() {
     tag.searchSymbols(getWord(), false, true).then(items => {
-        if (!(items instanceof Array)) { return; }
+        if (!(items instanceof Array) || !items.length) { return; }
         if (items.length > 1) {
             window
                 .showQuickPick(items, { matchOnDescription: true })
@@ -52,9 +51,13 @@ export function findRefer() {
     });
 }
 
+export function updateSymbols() {
+    tag.updateAll();
+}
+
 export function gotoSymbol() {
-    tag.searchSymbols(getWord()).then(items => {
-        if (!(items instanceof Array)) { return; }
+    tag.searchSymbols(getWord(), false, false, true).then(items => {
+        if (!(items instanceof Array) || !items.length) { return; }
         if (items.length > 1) {
             window
                 .showQuickPick(items, { matchOnDescription: true })
@@ -89,19 +92,7 @@ export function findSymbols() {
                 if (curTime < searchTime) { return; }
 
                 searchTime = curTime;
-                items.forEach(item => {
-                    var label = item["label"],
-                        match = new RegExp(pattern).exec(label),
-                        index = label.search(pattern);
-                    item["sort"] = [match ? match.toString().length : 0, index];
-                    item["alwaysShow"] = true;
-                });
-                items.sort((a: any, b: any) => {
-                    if (a["sort"][0] === b["sort"][0]) {
-                        return a["sort"][1] - b["sort"][1];
-                    }
-                    return a["sort"][0] - b["sort"][0];
-                });
+                items.forEach(item => item["alwaysShow"] = true);
                 qpick.items = items.slice(0, 200);
             });
     };
@@ -122,8 +113,4 @@ export function showFileSymbols() {
     editor && tag.fileSymbols(editor.document.uri.path)
         .then(items => window.showQuickPick(items as Array<any>)
             .then(gotoItems));
-}
-
-export function initSymbols() {
-
 }
