@@ -23,6 +23,16 @@ interface TagItem {
     kind: SymbolKind
 }
 
+const SymbolKindName = {
+    [SymbolKind.function]: "function",
+    [SymbolKind.struct]: "struct",
+    [SymbolKind.enum]: "enum",
+    [SymbolKind.constant]: "constant",
+    [SymbolKind.memory]: "memory",
+    [SymbolKind.variable]: "variable",
+    [SymbolKind.null]: "null",
+};
+
 export class Tag {
     updatingTags: number;
     updatingAll: boolean;
@@ -86,8 +96,14 @@ export class Tag {
             .replaceAll('/', '\\/');
         const begin = Date.now();
 
-        await Promise.all([this.run(`gtags --single-update ${file} .tags`, 30000),
-        this.run(`sed -i '/\t${escapedFile}/d' .tags/tags`)]);
+        await Promise.all([
+            this.run(`gtags --single-update ${file} .tags`, 30000)
+                .then(() => {
+                    let span = (Date.now() - begin) / 1000;
+                    this.statusText(`gtag update finished in ${span}S`);
+                }),
+            this.run(`sed -i '/\t${escapedFile}/d' .tags/tags`)
+        ]);
         await this.updateCtags(`-a ${shortFile}`);
 
         this.updatingTags--;
@@ -107,8 +123,18 @@ export class Tag {
         this.statusText('Updating gtags...', true);
         await this.run('mkdir -p .tags && mkdir -p .tags_tmp', 1000);
 
-        await Promise.all([this.run('gtags -i .tags_tmp', 300000),
-        this.updateCtags('-R --exclude=debian .', 'tags_tmp')]);
+        await Promise.all([
+            this.run('gtags -i .tags_tmp', 300000).then(() => {
+                let span = (Date.now() - begin) / 1000;
+                this.statusText(`gtag update finished in ${span}S`);
+                this.run('mv .tags_tmp/G* .tags/');
+            }),
+            this.updateCtags('-R --exclude=debian .', 'tags_tmp').then(() => {
+                let span = (Date.now() - begin) / 1000;
+                this.statusText(`ctag update finished in ${span}S`);
+                this.run('mv .tags_tmp/tags .tags/');
+            })
+        ]);
 
         await this.run('mv .tags_tmp/* .tags/ && rm -r .tags_tmp', 300000);
         this.updatingAll = false;
@@ -164,9 +190,13 @@ export class Tag {
         else if (info.startsWith('enum ')) {
             kind = SymbolKind.enum;
         }
-        else if (info.indexOf('(') !== -1) {
+        else if (info.includes('(*') || info.includes('typedef')) {
+            kind = SymbolKind.null;
+        }
+        else if (info.includes('(')) {
             kind = SymbolKind.function;
         }
+
         return kind;
     }
     parseCKind(info: string) {
@@ -199,6 +229,18 @@ export class Tag {
         }
         return a.path > b.path ? 1 : -1;
     }
+    tag2View(data: TagItem[]) {
+        return data.sort(this.tagSort).map(item => {
+            let line = item["line"];
+            let path = item["path"];
+            let desc = `${path}:${line}`;
+            return {
+                label: item["tag"], description: desc,
+                line, path,
+                detail: `${item['info']}`
+            };
+        });
+    }
     async rawSearchSymbols(cmd: string, parser: (content: string) => any) {
         let _this = this;
         const output = await this.run(cmd);
@@ -208,17 +250,7 @@ export class Tag {
 
         let items = (output as string).toString().split(/\r?\n/)
             .map((item: string) => parser.call(_this, item))
-            .filter(item => item).sort(this.tagSort)
-            .map(item => {
-                let line = item["line"];
-                let path = item["path"];
-                let desc = `${path}:${line}`;
-                return {
-                    label: item["tag"], description: desc,
-                    line, path,
-                    detail: item['info']
-                };
-            });
+            .filter(item => item);
         return items;
     }
     async searchSymbols(word: string | null, quiet = false, refer = false,
@@ -232,26 +264,28 @@ export class Tag {
                 this.gtagsCmd(`global -axr ${word}`),
                 this.parseGtag);
             !items.length && !quiet && window.showInformationMessage('引用找不到哦~');
-            return items;
+            return this.tag2View(items);
         }
 
         let flags = goto ? '' : '-p';
         let cmd = `readtags ${flags} -e -n -t .tags/tags - "${word}"`;
         let items = await this.rawSearchSymbols(cmd, this.parseCtag);
         cmd = this.gtagsCmd(`global -ax ${goto ? word : ('^' + word)}`);
+
+        /* find symbol base on gtags, as gtags is faster to update */
         const gitems = await this.rawSearchSymbols(cmd, this.parseGtag);
-        gitems.forEach(item => {
-            if (!items.find(cur => cur.path === item.path &&
+        items.forEach(item => {
+            if (!gitems.find(cur => cur.path === item.path &&
                 cur.line === item.line)) {
-                items.push(item);
+                gitems.push(item);
             }
         });
-        !items.length && !quiet && window.showInformationMessage('符号找不到哦~');
-        return items;
+        !gitems.length && !quiet && window.showInformationMessage('符号找不到哦~');
+        return this.tag2View(gitems);
     }
-    fileSymbols(file: string) {
-        return this.rawSearchSymbols(this.gtagsCmd(`global -axf "${file}"`),
-            this.parseGtag);
+    async fileSymbols(file: string) {
+        return this.tag2View(await this.rawSearchSymbols(this.gtagsCmd(`global -axf "${file}"`),
+            this.parseGtag));
     }
 }
 
