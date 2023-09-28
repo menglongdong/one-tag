@@ -2,7 +2,9 @@
   "name": "one-tag",
   "displayName": "One Tag for C and C++",
   "description": "A powful tag tool based on gtags and ctags",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "repository": "https://github.com/xmmgithub/one-tag",
+  "publisher": "image",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -11,12 +13,7 @@
   ],
   "activationEvents": [
     "onLanguage:cpp",
-    "onLanguage:c",
-    "onCommand:one-tag.findSymbols",
-    "onCommand:one-tag.gotoSymbol",
-    "onCommand:one-tag.findRefer",
-    "onCommand:one-tag.showFileSymbols",
-    "onCommand:one-tag.updateSymbols"
+    "onLanguage:c"
   ],
   "main": "./out/main.js",
   "contributes": {
@@ -24,6 +21,10 @@
       {
         "command": "one-tag.findSymbols",
         "title": "ONE-TAG: Find Project Symbols"
+      },
+      {
+        "command": "one-tag.showFileSymbols",
+        "title": "ONE-TAG: Find current file Symbols"
       },
       {
         "command": "one-tag.gotoSymbol",
@@ -34,12 +35,8 @@
         "title": "ONE-TAG: Find Function References"
       },
       {
-        "command": "one-tag.showFileSymbols",
-        "title": "ONE-TAG: Find Function References of current file"
-      },
-      {
         "command": "one-tag.updateSymbols",
-        "title": "ONE-TAG: Update all tags(gtag and ctag)"
+        "title": "ONE-TAG: Update all tags"
       }
     ],
     "configuration": {
@@ -48,8 +45,8 @@
       "properties": {
         "one-tag.autoUpdate": {
           "type": "boolean",
-          "default": false,
-          "description": "Whether One-Tag should update automatically or not when saving file. (default: false)"
+          "default": true,
+          "description": "Whether One-Tag should update automatically when saving file. (default: true)"
         }
       }
     }
