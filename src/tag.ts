@@ -136,7 +136,7 @@ export class Tag {
             })
         ]);
 
-        await this.run('mv .tags_tmp/* .tags/ && rm -r .tags_tmp', 300000);
+        await this.run('mv .tags_tmp/* .tags/; rm -r .tags_tmp', 300000);
         this.updatingAll = false;
         let span = (Date.now() - begin) / 1000;
         this.statusText(`Update finished in ${span}S`);
