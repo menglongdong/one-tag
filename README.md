@@ -1,70 +1,60 @@
-# hello README
+# One Tag
 
-This is the README for your extension "hello". After writing up a brief description, we recommend including the following sections.
+This is a extension used of C/C++ symbol searching, which is based on ctags and gtags.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Following command is available in this extension for symbol searching:
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+|Command                        |Desc      |
+|-------------------------------|----------|
+|ONE-TAG: Find Project Symbols  | Search the symbol(function, struct, etc) in the whole project |
+|ONE-TAG: Find current file Symbols | Search the symbol(function, struct, etc) in current file |
+|ONE-TAG: Goto Symbol           | Jump to the definition of the symbol |
+|ONE-TAG: Find Function References | Find all the usage of current symbol |
+|ONE-TAG: Update all tags       | Update/create the tags file for the whole project |
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+ctags and gtags is required tp be installed.
+
+For ubuntu, please install them with the following command:
+
+```shell
+sudo apt install global universal-ctags -y
+```
+
+For centos, please compile and install them manually with following command:
+
+```shell
+yum install libtool-ltdl-devel
+
+wget https://github.com/universal-ctags/ctags/releases/download/v6.0.0/universal-ctags-6.0.0.tar.gz
+tar -xf universal-ctags-6.0.0.tar.gz
+cd universal-ctags-6.0.0
+./configure
+make install
+
+cd ../
+wget https://ftp.gnu.org/pub/gnu/global/global-6.6.10.tar.gz
+tar -xf global-6.6.10.tar.gz
+cd global-6.6.10
+./configure
+make install
+```
+
+## Setup
+
+Press F1 and run the command `ONE-TAG: Update all tags` to generate the tag files.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+* `One-tag: Auto Update`: Whether One-Tag should update automatically when saving file. (default: true)
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release of One Tag
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
