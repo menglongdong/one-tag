@@ -1,8 +1,8 @@
 {
   "name": "one-tag",
   "displayName": "One Tag for C and C++",
-  "description": "A powful tag tool based on gtags and ctags",
-  "version": "1.0.0",
+  "description": "A powful tag tool based on gtags and ctags for kernel source",
+  "version": "1.0.1",
   "repository": "https://github.com/xmmgithub/one-tag",
   "publisher": "image",
   "engines": {

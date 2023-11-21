@@ -43,6 +43,13 @@ cd global-6.6.10
 make install
 ```
 
+For MacOS, please install gtags and ctags with brew:
+
+```shell
+brew install universal-ctags
+brew install global
+```
+
 ## Setup
 
 Press F1 and run the command `ONE-TAG: Update all tags` to generate the tag files.
@@ -53,6 +60,10 @@ Press F1 and run the command `ONE-TAG: Update all tags` to generate the tag file
 
 
 ## Release Notes
+
+### 1.0.1
+
+Update document to add requirements for MacOS.
 
 ### 1.0.0
 
