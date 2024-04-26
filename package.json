@@ -2,7 +2,7 @@
   "name": "one-tag",
   "displayName": "One Tag for C and C++",
   "description": "A powful tag tool based on gtags and ctags for kernel source",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "https://github.com/xmmgithub/one-tag",
   "publisher": "image",
   "engines": {
@@ -47,6 +47,11 @@
           "type": "boolean",
           "default": true,
           "description": "Whether One-Tag should update automatically when saving file. (default: true)"
+        },
+        "one-tag.exclude": {
+          "type": "string",
+          "default": "",
+          "description": "exclude these file/folder when generate tags, splited by \",\""
         }
       }
     }

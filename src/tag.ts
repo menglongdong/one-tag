@@ -1,5 +1,5 @@
 
-import { window, StatusBarItem } from 'vscode';
+import { window, StatusBarItem, workspace } from 'vscode';
 import { exec } from 'child-process-promise';
 import { extname } from 'path';
 
@@ -123,13 +123,19 @@ export class Tag {
         this.statusText('Updating gtags...', true);
         await this.run('mkdir -p .tags && mkdir -p .tags_tmp', 1000);
 
+        var configuration = workspace.getConfiguration('one-tag');
+        var exclude = configuration.get('exclude', null) as string | null;
+        if (exclude) {
+            exclude = `--exclude=${exclude}`
+        }
+
         await Promise.all([
             this.run('gtags -i .tags_tmp', 300000).then(() => {
                 let span = (Date.now() - begin) / 1000;
                 this.statusText(`gtag update finished in ${span}S`);
                 this.run('mv .tags_tmp/G* .tags/');
             }),
-            this.updateCtags('-R --exclude=debian .', 'tags_tmp').then(() => {
+            this.updateCtags(`-R ${exclude} .`, 'tags_tmp').then(() => {
                 let span = (Date.now() - begin) / 1000;
                 this.statusText(`ctag update finished in ${span}S`);
                 this.run('mv .tags_tmp/tags .tags/');
